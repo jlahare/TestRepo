@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - '*'
+
+variables:
+  - group: PAT
+  - name: ArtifactName
+    value: $(Build.Repository.Name)_$(Build.BuildId)
+
+stages:
+  - stage: DEPLOYMENT_IN_DEV
+    displayName: 'DEPLOY IN DEV'
+    jobs:
+      - template: '.devops/pipeline-templates/app-build.yml'
+        parameters:
+          artifactName: $(ArtifactName)
+          variablesSharedFile: '../pipeline-variables/azure-pipelines.common.variable.yml'
+          variablesEnvFile: '../pipeline-variables/azure-pipelines.d.variable.yml'
+
+      - template: '.devops/pipeline-templates/static-app-deploy.yml'
+        parameters:
+          artifactName: $(ArtifactName)
+          variablesSharedFile: '../pipeline-variables/azure-pipelines.common.variable.yml'
+          variablesEnvFile: '../pipeline-variables/azure-pipelines.d.variable.yml'
+
+  # - stage: DEPLOYMENT_IN_PROD
+  #   displayName: 'DEPLOY IN PROD'
+  #   condition: eq(variables['Build.SourceBranch'], 'refs/heads/prod')
+  #   jobs:
+  #     - template: '.devops/pipeline-templates/app-build.yml'
+  #       parameters:
+  #         artifactName: $(ArtifactName)
+  #         variablesSharedFile: '../pipeline-variables/azure-pipelines.common.variable.yml'
+  #         variablesEnvFile: '../pipeline-variables/azure-pipelines.p.variable.yml'
+
+      # - template: '.devops/pipeline-templates/static-app-deploy.yml'
+      #   parameters:
+      #     artifactName: $(ArtifactName)
+      #     variablesSharedFile: '../pipeline-variables/azure-pipelines.common.variable.yml'
+      #     variablesEnvFile: '../pipeline-variables/azure-pipelines.p.variable.yml'
+
